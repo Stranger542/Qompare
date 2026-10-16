@@ -30,7 +30,7 @@ flowchart TD
         SW --> STREAM["Normalized 5-Feature Stream Vector<br/>[x_1, x_2, x_3, x_4, x_5]<br/>(label withheld until after prediction)"]
     end
 
-    subgraph Inference["3. Parallel Model Execution (3x2 Matrix)"]
+    subgraph Inference["3. Parallel Model Execution (4x2 Matrix)"]
         STREAM --> C1["M1: Classical Static<br/>(Hoeffding Tree - Fixed)"]
         STREAM --> C2["M2: Classical Adaptive<br/>(Hoeffding Tree + ADWIN)"]
         
@@ -39,10 +39,13 @@ flowchart TD
         
         STREAM --> K1["M5: Static Quantum Kernel<br/>(Fixed Support Set)"]
         STREAM --> K2["M6: Drift-Adaptive Quantum Kernel<br/>(Sliding Support Set on Alert)"]
+
+        STREAM --> R1["M7: Static RBF Kernel<br/>(Fixed Support Set)"]
+        STREAM --> R2["M8: Drift-Adaptive RBF Kernel<br/>(Sliding Support Set on Alert)"]
     end
 
     subgraph Metrics["4. Prequential Evaluation & Telemetry"]
-        C1 & C2 & Q1 & Q2 & K1 & K2 --> EVAL["Evaluation Engine<br/>- Prequential Accuracy & F1<br/>- Latency Breakdown (Prep / Encode / Sim)<br/>- Drift Recovery Timings"]
+        C1 & C2 & Q1 & Q2 & K1 & K2 & R1 & R2 --> EVAL["Evaluation Engine<br/>- Prequential Accuracy & F1<br/>- Latency Breakdown (Prep / Encode / Sim)<br/>- Drift Recovery Timings"]
         EVAL --> INFLUX[("InfluxDB v2 Time-Series Store")]
     end
 
@@ -76,7 +79,8 @@ flowchart TD
 
 ## 4. Models & Experimental Design (Dimension 2)
 
-We implement a complete **3 × 2 Comparative Matrix** evaluated on the identical stream:
+We implement a complete **4 × 2 Comparative Matrix** evaluated on the identical stream
+(extended from the originally planned 3×2 with classical RBF-kernel controls — see Sec. 11):
 
 | Paradigm | Model Variant | Architecture / Circuit Details | Update Mechanism | Role in Study |
 | :--- | :--- | :--- | :--- | :--- |
@@ -86,6 +90,8 @@ We implement a complete **3 × 2 Comparative Matrix** evaluated on the identical
 | **Quantum Parametric** | **M4: Drift-Adaptive VQC** | 5 Qubits, identical circuit to M3 | Fast forward inference during stationary periods; triggers **warm-started, few-step SPSA fine-tuning** upon drift alert. | **Proposed Novelty (VQC)** |
 | **Quantum Non-Parametric** | **M5: Static Quantum Kernel** | 5 Qubits, Fidelity Kernel $K(x, x') = \|\langle \phi(x) \| \phi(x') \rangle\|^2$, Scikit-Learn SVC | Support prototypes selected from $W_0$, frozen thereafter. | Quantum kernel baseline adapted from **Tscharke et al.** |
 | **Quantum Non-Parametric** | **M6: Drift-Adaptive Quantum Kernel** | 5 Qubits, identical quantum kernel circuit to M5 | Evaluates against active support set; **refreshes support set from recent sliding window** upon drift alert. | **Proposed Novelty (Kernel)** |
+| **Classical Kernel** | **M7: Static RBF Kernel** | Scikit-Learn RBF-SVM, support budget $K=80$ | Support prototypes selected from $W_0$, frozen thereafter. | Capacity-matched classical control (Hypothesis 4) |
+| **Classical Kernel** | **M8: Drift-Adaptive RBF Kernel** | Identical to M7 | Refreshes support set from recent sliding window upon drift alert (same rule as M6). | **Capacity-matched classical control (Hypothesis 4)** |
 
 ---
 
@@ -118,7 +124,7 @@ flowchart TD
 
 ### Metrics & Hypotheses to Compare
 1. **Prequential Accuracy & F1-Score:** Does Drift-Adaptive VQC/Kernel maintain accuracy through seasonal market shifts, while Static VQC/Kernel collapses?
-2. **Drift Recovery Rate ($N_{\text{recovery}}$):** How many events does each model require to return to baseline accuracy after an ADWIN drift signal?
+2. **Drift Recovery Rate ($N_{\text{recovery}}$):** How many events does each model require to return to baseline accuracy after an ADWIN drift signal? *Operational definition:* a model must first degrade below (pre-drift rolling accuracy − $\varepsilon$); $N_{\text{recovery}}$ then counts events from the alert until rolling accuracy re-enters the band, confirmed by $k$ consecutive qualifying events. Models that never degrade within the horizon score $N_{\text{recovery}} = 0$; episodes censored by the next drift are excluded.
 3. **Fine-Grained Latency Decomposition:**
    $$\Delta t_{\text{event}} = t_{\text{network}} + t_{\text{prep}} + t_{\text{encode}} + t_{\text{sim}} + t_{\text{update}}$$
    - Compare classical execution latency (expected in the sub-millisecond range — to be verified experimentally, not assumed) against quantum state preparation and simulation.
@@ -259,7 +265,7 @@ When execution begins, the pipeline will be validated across three stages:
 | **Proposal & Lit Review (5 pts)** | 2–3 papers summarized (a–e), problem statement, tool justification. | Updated `Proposal.md` incorporating ELEC2, Kafka, and the dual adaptation study. |
 | **Tool Integration (15 pts)** | Genuine streaming data flow, no isolated scripts, Kafka + Dashboard. | Real-time Kafka → Stream Worker → InfluxDB → Grafana pipeline. |
 | **Enhancement / Novelty (8 pts)** | Non-trivial, implemented enhancement over base papers. | Drift-Adaptive Quantum Learning (ADWIN-triggered VQC fine-tuning and Kernel support refresh). |
-| **Results & Evaluation (7 pts)** | Meaningful metrics, fair comparison, honest reporting of quantum bottlenecks. | 3×2 Comparative Matrix, prequential accuracy, latency breakdown, drift recovery rate. |
+| **Results & Evaluation (7 pts)** | Meaningful metrics, fair comparison, honest reporting of quantum bottlenecks. | 4×2 Comparative Matrix, prequential accuracy, latency breakdown, drift recovery rate. |
 | **Report Quality (7 pts)** | 6–8 pages, IEEE 2-column format, architecture diagrams. | Final report generated using IEEE conference template with auto-generated experimental plots. |
 | **Demo & Defense (8 pts)** | $\le$10 min live walkthrough, defense of tool choices and design trade-offs. | Live Grafana dashboard demonstrating real-time streaming, drift alerts, and quantum adaptation. |
 

@@ -354,9 +354,12 @@ class PrequentialEvaluator:
             if drift_record is not None:
                 drift_records.append(drift_record)
                 if self._quantum_initialized:
-                    self.recovery_tracker.register_drift(
-                        m_name, event.event_id, pre_drift_acc[m_name]
-                    )
+                    # Open recovery episodes for ALL models so static-vs-adaptive
+                    # recovery is comparable under the same alert (PLAN.md Hypothesis 2).
+                    for m_name_all in self.model_names:
+                        self.recovery_tracker.register_drift(
+                            m_name_all, event.event_id, pre_drift_acc[m_name_all]
+                        )
                     X_wt, y_wt = self.worker.sliding_buffer.get_arrays()
                     update_times[m_name] += model.adapt_on_drift(X_wt, y_wt)
                     self.update_counts[m_name] += 1

@@ -99,8 +99,11 @@ metric, and InfluxDB point formatting.
 - **Drift detection:** one ADWIN detector (δ = 0.002) per adaptive model pair on the
   prequential error sequence; alerts trigger warm-started SPSA fine-tuning (M4) or
   support-set refresh (M6/M8).
-- **Drift recovery (N_recovery):** events from a drift alert until rolling accuracy
-  (window 100) reaches pre-drift accuracy − 2 pp and stays there for 20 consecutive events.
+- **Drift recovery (N_recovery):** a model must first degrade below
+  (pre-drift rolling accuracy − 2 pp); recovery then counts events from the alert until
+  rolling accuracy re-enters the band, confirmed by 20 consecutive qualifying events.
+  Models that never degrade within the 300-event horizon score 0; episodes censored by
+  the next drift are excluded from means.
 - **Reproducibility:** all seeds (`RANDOM_SEED=42`), dependency versions, and full config
   are recorded per run in `run_metadata.json`.
 

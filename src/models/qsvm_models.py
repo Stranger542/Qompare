@@ -151,6 +151,7 @@ class DriftAdaptiveQuantumKernelModel(BasePennyLaneQSVM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.adaptation_count: int = 0
+        self.last_support_churn: float = 0.0
 
     def fit_initial(self, X_warmup: np.ndarray, y_warmup: np.ndarray) -> float:
         """Fit initial support set from W_0."""
@@ -183,6 +184,7 @@ class DriftAdaptiveQuantumKernelModel(BasePennyLaneQSVM):
             updated_y = y_sliding[-self.max_support_size :]
 
         self.adaptation_count += 1
+        self.last_support_churn = n_replace / max(1, n_current)
         return self._fit_from_support_arrays(updated_X, updated_y)
 
 class ClassicalRBFKernelModel:

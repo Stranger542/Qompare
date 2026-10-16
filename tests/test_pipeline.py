@@ -156,6 +156,7 @@ def test_pennylane_qsvm_static_and_adaptive_predictions() -> None:
     t_adapt = m6.adapt_on_drift(X_new, y_new)
     assert t_adapt > 0.0
     assert m6.adaptation_count == 1
+    assert 0.0 < m6.last_support_churn <= 1.0
 
 
 def test_prequential_evaluator_and_influx_points_end_to_end() -> None:

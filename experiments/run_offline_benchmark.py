@@ -8,9 +8,13 @@ import csv
 import json
 import logging
 import platform
+import sys
 from dataclasses import asdict
 from pathlib import Path
 from typing import Dict, List
+
+# Allow running as `python experiments/run_offline_benchmark.py` from the repo root
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import matplotlib
 matplotlib.use("Agg")

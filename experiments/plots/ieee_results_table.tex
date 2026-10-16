@@ -1,16 +1,18 @@
 \begin{table}[htbp]
 \centering
-\caption{Prequential Accuracy, Latency Decomposition, and Drift Recovery on ELEC2}
+\caption{Prequential Accuracy (post-warmup), Latency Decomposition, and Drift Recovery on ELEC2}
 \begin{tabular}{lccccc}
 \hline
-Model & Cum. Acc. & Rolling F1 & $t_{\text{enc}}$ (ms) & $t_{\text{sim}}$ (ms) & $N_{\text{recovery}}$ \\
+Model & Acc. & Rolling F1 & $t_{\text{enc}}$ (ms) & $t_{\text{sim}}$ (ms) & $N_{\text{recovery}}$ \\
 \hline
-M1\_Classical\_Static\_HT & 0.825 & 0.766 & 0.000 & 0.012 & 5.0 \\
-M2\_Classical\_Adaptive\_HATC & 0.872 & 1.000 & 0.000 & 0.014 & 5.0 \\
-M3\_Quantum\_Static\_VQC & 0.666 & 0.463 & 0.107 & 0.679 & 6.5 \\
-M4\_Quantum\_Adaptive\_VQC & 0.666 & 0.463 & 0.097 & 0.639 & 6.5 \\
-M5\_Quantum\_Static\_QSVM & 0.776 & 0.939 & 0.000 & 1.208 & 5.0 \\
-M6\_Quantum\_Adaptive\_QSVM & 0.776 & 0.955 & 0.000 & 1.040 & 5.0 \\
+M1\_Classical\_Static\_HT & 0.722 & 0.111 & 0.000 & 0.018 & 0.0 \\
+M2\_Classical\_Adaptive\_HATC & 0.845 & 0.549 & 0.000 & 0.026 & 0.0 \\
+M3\_Quantum\_Static\_VQC & 0.693 & 0.000 & 0.194 & 1.194 & 0.0 \\
+M4\_Quantum\_Adaptive\_VQC & 0.695 & 0.000 & 0.170 & 1.107 & 355.3 \\
+M5\_Quantum\_Static\_QSVM & 0.730 & 0.111 & 0.001 & 2.167 & 0.0 \\
+M6\_Quantum\_Adaptive\_QSVM & 0.725 & 0.111 & 0.001 & 1.930 & 111.6 \\
+M7\_Control\_RBF\_Static & 0.728 & 0.111 & 0.000 & 0.096 & 0.0 \\
+M8\_Control\_RBF\_Adaptive & 0.723 & 0.111 & 0.000 & 0.085 & 148.4 \\
 \hline
 \end{tabular}
 \end{table}

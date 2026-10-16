@@ -1,12 +1,12 @@
 {
-  "python_version": "3.11.16",
-  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python_version": "3.12.13",
+  "platform": "Linux-7.1.8-200.fc44.x86_64-x86_64-with-glibc2.43",
   "dependencies": {
     "numpy": "1.26.4",
-    "scikit_learn": "1.5.1",
+    "scikit_learn": "1.5.2",
     "river": "0.21.2",
     "qiskit": "1.2.4",
-    "pennylane": "0.38.0"
+    "pennylane": "0.39.0"
   },
   "config": {
     "kafka_bootstrap_servers": "localhost:9092",
@@ -24,10 +24,18 @@
     "vqc_adapt_spsa_steps": 10,
     "vqc_spsa_lr": 0.15,
     "vqc_spsa_perturbation": 0.1,
+    "vqc_adapt_lr_scale": 0.75,
+    "vqc_adapt_batch_size": 0,
+    "vqc_readout": "parity",
     "qsvm_max_support_size": 80,
     "qsvm_replace_ratio": 0.2,
     "qsvm_c": 1.0,
+    "rbf_c": 1.0,
+    "rbf_gamma": "scale",
     "adwin_delta": 0.002,
+    "recovery_epsilon": 0.02,
+    "recovery_sustain_events": 20,
+    "recovery_horizon": 300,
     "influxdb_url": "http://localhost:8086",
     "influxdb_token": "<redacted>",
     "influxdb_org": "ioe413-org",
@@ -35,9 +43,132 @@
     "influxdb_enabled": false,
     "log_level": "INFO"
   },
-  "events_evaluated": 1000,
+  "events_evaluated": 5000,
   "adwin_drift_alerts": [
-    511,
-    927
-  ]
+    {
+      "event_id": 511,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.11039628180039138
+    },
+    {
+      "event_id": 511,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.11039628180039138
+    },
+    {
+      "event_id": 575,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.06316123188405798
+    },
+    {
+      "event_id": 1343,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.0014929456137083297
+    },
+    {
+      "event_id": 1983,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.021930628912363054
+    },
+    {
+      "event_id": 2047,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03176786441368079
+    },
+    {
+      "event_id": 2047,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.03111639861563517
+    },
+    {
+      "event_id": 3007,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.10855632942326493
+    },
+    {
+      "event_id": 3071,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.017950421554252194
+    },
+    {
+      "event_id": 3103,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.021824644549763073
+    },
+    {
+      "event_id": 3519,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.039534395973154335
+    },
+    {
+      "event_id": 3679,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.03174818840579713
+    },
+    {
+      "event_id": 3711,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.02228332655964238
+    },
+    {
+      "event_id": 3935,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03589813800657177
+    },
+    {
+      "event_id": 4479,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.00023466833541929688
+    },
+    {
+      "event_id": 4543,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.013238773110163027
+    },
+    {
+      "event_id": 4639,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.020650584795321614
+    }
+  ],
+  "pair_agreements": {
+    "M2_M4": 0.83,
+    "M3_M4": 1.0,
+    "M5_M6": 1.0,
+    "M7_M8": 1.0
+  }
 }
