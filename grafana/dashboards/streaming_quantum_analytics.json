@@ -1,0 +1,144 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+        "enable": true,
+        "iconColor": "rgba(255, 50, 50, 1)",
+        "name": "ADWIN Concept Drift Alerts",
+        "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"drift_detected\" and r._value == 1)"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Panel 1A: Stream Throughput Gauge (Events/sec)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -2m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 50,
+          "unit": "ops",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "yellow", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Panel 1B: Cumulative Processed Events",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> count()"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Panel 4: Classical Adaptive (M2) vs Drift-Adaptive VQC (M4) Agreement",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"m2_m4_agreement\")\n  |> last()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0.6 },
+              { "color": "green", "value": 0.75 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Cumulative ADWIN Concept Drift Alerts",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"cumulative_drifts\")\n  |> last()"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Panel 2: Rolling Prequential Accuracy (M1 - M6) with ADWIN Drift Markers",
+      "type": "timeseries",
+      "gridPos": { "h": 10, "w": 14, "x": 0, "y": 6 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prequential_accuracy\" and r._field == \"rolling_accuracy\")"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0.35,
+          "max": 1.0,
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Panel 3: Fine-Grained Latency Breakdown (ms) - Prep vs Encode vs Sim vs Update",
+      "type": "barchart",
+      "gridPos": { "h": 10, "w": 10, "x": 14, "y": 6 },
+      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"latency_telemetry\")\n  |> filter(fn: (r) => r._field == \"t_prep_ms\" or r._field == \"t_encode_ms\" or r._field == \"t_sim_ms\" or r._field == \"t_update_ms\")\n  |> mean()"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      }
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "title": "Quantum vs Classical Streaming Data Analytics (ELEC2)",
+  "uid": "ioe413-quantum-stream",
+  "version": 2
+}

@@ -1,0 +1,7 @@
+Model,Cumulative_Accuracy,Final_Rolling_F1,Mean_Encode_ms,Mean_Sim_ms,Mean_Update_ms,Mean_Recovery_Events
+M1_Classical_Static_HT,0.8250,0.7660,0.0000,0.0123,0.0068,5.0
+M2_Classical_Adaptive_HATC,0.8720,1.0000,0.0000,0.0137,0.0819,5.0
+M3_Quantum_Static_VQC,0.6660,0.4632,0.1074,0.6795,1.4140,6.5
+M4_Quantum_Adaptive_VQC,0.6660,0.4632,0.0969,0.6389,2.1296,6.5
+M5_Quantum_Static_QSVM,0.7760,0.9391,0.0005,1.2081,0.0769,5.0
+M6_Quantum_Adaptive_QSVM,0.7760,0.9550,0.0004,1.0397,0.2284,5.0

@@ -1,0 +1,43 @@
+{
+  "python_version": "3.11.16",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "dependencies": {
+    "numpy": "1.26.4",
+    "scikit_learn": "1.5.1",
+    "river": "0.21.2",
+    "qiskit": "1.2.4",
+    "pennylane": "0.38.0"
+  },
+  "config": {
+    "kafka_bootstrap_servers": "localhost:9092",
+    "kafka_topic_raw": "elec2-stream",
+    "kafka_consumer_group": "qml-streaming-worker-group",
+    "kafka_consumer_timeout_ms": 60000,
+    "producer_delay_ms": 25,
+    "initial_warmup_window": 200,
+    "sliding_window_size": 100,
+    "rolling_metric_window": 100,
+    "random_seed": 42,
+    "num_qubits": 5,
+    "vqc_ansatz_reps": 2,
+    "vqc_initial_spsa_steps": 40,
+    "vqc_adapt_spsa_steps": 10,
+    "vqc_spsa_lr": 0.15,
+    "vqc_spsa_perturbation": 0.1,
+    "qsvm_max_support_size": 80,
+    "qsvm_replace_ratio": 0.2,
+    "qsvm_c": 1.0,
+    "adwin_delta": 0.002,
+    "influxdb_url": "http://localhost:8086",
+    "influxdb_token": "ioe413-super-secret-auth-token",
+    "influxdb_org": "ioe413-org",
+    "influxdb_bucket": "streaming_quantum",
+    "influxdb_enabled": false,
+    "log_level": "INFO"
+  },
+  "events_evaluated": 1000,
+  "adwin_drift_alerts": [
+    511,
+    927
+  ]
+}

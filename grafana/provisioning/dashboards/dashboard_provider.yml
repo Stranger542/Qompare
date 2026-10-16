@@ -1,0 +1,14 @@
+apiVersion: 1
+
+providers:
+  - name: "Streaming Quantum Analytics"
+    orgId: 1
+    folder: "IOE413 Track C"
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 5
+    options:
+      path: /var/lib/grafana/dashboards
+
+      

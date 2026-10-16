@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Prequential Accuracy, Latency Decomposition, and Drift Recovery on ELEC2}
+\begin{tabular}{lccccc}
+\hline
+Model & Cum. Acc. & Rolling F1 & $t_{\text{enc}}$ (ms) & $t_{\text{sim}}$ (ms) & $N_{\text{recovery}}$ \\
+\hline
+M1\_Classical\_Static\_HT & 0.825 & 0.766 & 0.000 & 0.012 & 5.0 \\
+M2\_Classical\_Adaptive\_HATC & 0.872 & 1.000 & 0.000 & 0.014 & 5.0 \\
+M3\_Quantum\_Static\_VQC & 0.666 & 0.463 & 0.107 & 0.679 & 6.5 \\
+M4\_Quantum\_Adaptive\_VQC & 0.666 & 0.463 & 0.097 & 0.639 & 6.5 \\
+M5\_Quantum\_Static\_QSVM & 0.776 & 0.939 & 0.000 & 1.208 & 5.0 \\
+M6\_Quantum\_Adaptive\_QSVM & 0.776 & 0.955 & 0.000 & 1.040 & 5.0 \\
+\hline
+\end{tabular}
+\end{table}
