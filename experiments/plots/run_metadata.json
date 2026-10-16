@@ -43,7 +43,7 @@
     "influxdb_enabled": false,
     "log_level": "INFO"
   },
-  "events_evaluated": 5000,
+  "events_evaluated": 45312,
   "adwin_drift_alerts": [
     {
       "event_id": 511,
@@ -163,12 +163,1216 @@
         "M6_Quantum_Adaptive_QSVM"
       ],
       "magnitude": 0.020650584795321614
+    },
+    {
+      "event_id": 5407,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.058325871694933085
+    },
+    {
+      "event_id": 5407,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.20794627335940902
+    },
+    {
+      "event_id": 5567,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.023564909676340173
+    },
+    {
+      "event_id": 5695,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.1046566492450639
+    },
+    {
+      "event_id": 6143,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.07066123188405798
+    },
+    {
+      "event_id": 6335,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.013992718446601937
+    },
+    {
+      "event_id": 6527,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.07739169675090252
+    },
+    {
+      "event_id": 6879,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.04703398453398455
+    },
+    {
+      "event_id": 7039,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.060731132075471705
+    },
+    {
+      "event_id": 7039,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0025794343575419043
+    },
+    {
+      "event_id": 7327,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.11492813588850176
+    },
+    {
+      "event_id": 7391,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.025652154558404527
+    },
+    {
+      "event_id": 7455,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.011443649283634588
+    },
+    {
+      "event_id": 7903,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.07259507829977624
+    },
+    {
+      "event_id": 7903,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0885054347826087
+    },
+    {
+      "event_id": 8383,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.019288176925664313
+    },
+    {
+      "event_id": 8383,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.030271398747390377
+    },
+    {
+      "event_id": 8383,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.030271398747390377
+    },
+    {
+      "event_id": 8799,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.036136211512717564
+    },
+    {
+      "event_id": 8799,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.036136211512717564
+    },
+    {
+      "event_id": 9055,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.2019467213114754
+    },
+    {
+      "event_id": 9055,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.04135154061624646
+    },
+    {
+      "event_id": 9055,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.04135154061624646
+    },
+    {
+      "event_id": 9311,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.0974877450980392
+    },
+    {
+      "event_id": 9311,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.09227941176470589
+    },
+    {
+      "event_id": 9631,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.023505434782608692
+    },
+    {
+      "event_id": 9983,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.00620963735717836
+    },
+    {
+      "event_id": 10271,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.021708811261730965
+    },
+    {
+      "event_id": 10687,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.011807037300458345
+    },
+    {
+      "event_id": 10783,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.014632317006950502
+    },
+    {
+      "event_id": 10975,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.0856743612078978
+    },
+    {
+      "event_id": 10975,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0006953617150985691
+    },
+    {
+      "event_id": 11359,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.0033899456521739313
+    },
+    {
+      "event_id": 11551,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.05140706806282719
+    },
+    {
+      "event_id": 11551,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.007601902173913044
+    },
+    {
+      "event_id": 11551,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.04527173913043479
+    },
+    {
+      "event_id": 11807,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.25304621848739495
+    },
+    {
+      "event_id": 11903,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.026365995115995078
+    },
+    {
+      "event_id": 12351,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03675545302013422
+    },
+    {
+      "event_id": 12479,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.2088966361507345
+    },
+    {
+      "event_id": 12479,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.035449414393589174
+    },
+    {
+      "event_id": 12607,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.07258858267716539
+    },
+    {
+      "event_id": 12639,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.033427700348432066
+    },
+    {
+      "event_id": 12991,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.13435665362035223
+    },
+    {
+      "event_id": 12991,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.03179667101827677
+    },
+    {
+      "event_id": 13599,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.015277491762767714
+    },
+    {
+      "event_id": 13663,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.008915479681608718
+    },
+    {
+      "event_id": 13759,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.09325864779874216
+    },
+    {
+      "event_id": 14591,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.025639973744666894
+    },
+    {
+      "event_id": 15007,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.002233935742971871
+    },
+    {
+      "event_id": 15231,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.13632286995515697
+    },
+    {
+      "event_id": 15359,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.01090875484886894
+    },
+    {
+      "event_id": 15519,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.058052560646900286
+    },
+    {
+      "event_id": 15711,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0530495079033701
+    },
+    {
+      "event_id": 15871,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.07746758806262233
+    },
+    {
+      "event_id": 15967,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.09093137254901962
+    },
+    {
+      "event_id": 16223,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.03705929487179488
+    },
+    {
+      "event_id": 16863,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.01624678627319473
+    },
+    {
+      "event_id": 17407,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.059726086380498145
+    },
+    {
+      "event_id": 17631,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.04430614406779659
+    },
+    {
+      "event_id": 17695,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.006548802900229134
+    },
+    {
+      "event_id": 18111,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.03656215772179627
+    },
+    {
+      "event_id": 18239,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.055433141131246644
+    },
+    {
+      "event_id": 19007,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.035701815642458085
+    },
+    {
+      "event_id": 19327,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.024478350313479613
+    },
+    {
+      "event_id": 19807,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.026362012204914076
+    },
+    {
+      "event_id": 20159,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.025396189458689433
+    },
+    {
+      "event_id": 20415,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.056442577030812346
+    },
+    {
+      "event_id": 20863,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.0035403496077386354
+    },
+    {
+      "event_id": 21119,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.03798700015805284
+    },
+    {
+      "event_id": 22143,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.01912649682306944
+    },
+    {
+      "event_id": 22911,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.01857170300032568
+    },
+    {
+      "event_id": 23359,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.00894677653978182
+    },
+    {
+      "event_id": 23391,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.161143006263048
+    },
+    {
+      "event_id": 23391,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.1884057452170924
+    },
+    {
+      "event_id": 23743,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.09267297650130546
+    },
+    {
+      "event_id": 23743,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.0744747150997151
+    },
+    {
+      "event_id": 23743,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.10358796296296294
+    },
+    {
+      "event_id": 23999,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.10974264705882353
+    },
+    {
+      "event_id": 23999,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.11525735294117645
+    },
+    {
+      "event_id": 23999,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.10882352941176476
+    },
+    {
+      "event_id": 24127,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.05286839145106864
+    },
+    {
+      "event_id": 24703,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.037335032400821866
+    },
+    {
+      "event_id": 24767,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.11619132985658409
+    },
+    {
+      "event_id": 24799,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.09605263157894733
+    },
+    {
+      "event_id": 24959,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.018132589432228396
+    },
+    {
+      "event_id": 24991,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.07238219895287962
+    },
+    {
+      "event_id": 25311,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.09546434169278994
+    },
+    {
+      "event_id": 25343,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.1582142857142857
+    },
+    {
+      "event_id": 25343,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.043203328981723244
+    },
+    {
+      "event_id": 25599,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03032212885154062
+    },
+    {
+      "event_id": 26047,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.12094519015659955
+    },
+    {
+      "event_id": 26143,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.04624824508624145
+    },
+    {
+      "event_id": 26303,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.06358097484276731
+    },
+    {
+      "event_id": 26335,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.006628375435540068
+    },
+    {
+      "event_id": 26655,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03543789184952978
+    },
+    {
+      "event_id": 26655,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.07634437321937321
+    },
+    {
+      "event_id": 27007,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.1302973646723647
+    },
+    {
+      "event_id": 27007,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0717592592592593
+    },
+    {
+      "event_id": 27167,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.009161213854713579
+    },
+    {
+      "event_id": 27295,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.02820121951219512
+    },
+    {
+      "event_id": 27295,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.06999491869918695
+    },
+    {
+      "event_id": 27647,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.043313746438746414
+    },
+    {
+      "event_id": 27647,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.002748842592592615
+    },
+    {
+      "event_id": 27711,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.008881982811540845
+    },
+    {
+      "event_id": 27775,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.05483689538807651
+    },
+    {
+      "event_id": 27871,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.05213004484304934
+    },
+    {
+      "event_id": 27935,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.09557174887892378
+    },
+    {
+      "event_id": 28319,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.03857702349869452
+    },
+    {
+      "event_id": 28351,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0077683423913043614
+    },
+    {
+      "event_id": 28575,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.021463938714499253
+    },
+    {
+      "event_id": 28863,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.008436924493554376
+    },
+    {
+      "event_id": 28927,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.0322070868945869
+    },
+    {
+      "event_id": 29343,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.031786418464393396
+    },
+    {
+      "event_id": 29823,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.02717935288640594
+    },
+    {
+      "event_id": 30079,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.08841911764705884
+    },
+    {
+      "event_id": 30303,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.05750186846038863
+    },
+    {
+      "event_id": 30495,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.01997486657564851
+    },
+    {
+      "event_id": 30495,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.07424738219895288
+    },
+    {
+      "event_id": 31103,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.01670981407389971
+    },
+    {
+      "event_id": 31295,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.06007853403141361
+    },
+    {
+      "event_id": 31647,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.1016915954415954
+    },
+    {
+      "event_id": 31967,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.00408463064713066
+    },
+    {
+      "event_id": 31967,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.10499608150470219
+    },
+    {
+      "event_id": 32095,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.014100609756097615
+    },
+    {
+      "event_id": 32223,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.018557422969187665
+    },
+    {
+      "event_id": 32351,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.05325554830287205
+    },
+    {
+      "event_id": 32991,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.013188050032594545
+    },
+    {
+      "event_id": 33055,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.032902145566619245
+    },
+    {
+      "event_id": 33119,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.18769855816226783
+    },
+    {
+      "event_id": 33279,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.05580357142857145
+    },
+    {
+      "event_id": 33279,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.05159286248131545
+    },
+    {
+      "event_id": 33375,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.050280112044817915
+    },
+    {
+      "event_id": 33887,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.1045132093933464
+    },
+    {
+      "event_id": 34079,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.1086644764288694
+    },
+    {
+      "event_id": 34111,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.023532367902855233
+    },
+    {
+      "event_id": 34207,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.029584639498432597
+    },
+    {
+      "event_id": 34303,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.02059977578475336
+    },
+    {
+      "event_id": 34431,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.15162617554858937
+    },
+    {
+      "event_id": 34495,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.014195884146341486
+    },
+    {
+      "event_id": 34783,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.05419586937071286
+    },
+    {
+      "event_id": 34911,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.011617753332262726
+    },
+    {
+      "event_id": 35935,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.006540964076246325
+    },
+    {
+      "event_id": 36447,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.048286651989562945
+    },
+    {
+      "event_id": 36799,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.0042654112841945535
+    },
+    {
+      "event_id": 37023,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.046664798206278
+    },
+    {
+      "event_id": 37599,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.025393697665567094
+    },
+    {
+      "event_id": 37663,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.016653806584362163
+    },
+    {
+      "event_id": 37695,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.040548018760410254
+    },
+    {
+      "event_id": 38399,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.006417830290010751
+    },
+    {
+      "event_id": 38815,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.01909722222222221
+    },
+    {
+      "event_id": 39039,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.05122203513165913
+    },
+    {
+      "event_id": 39167,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03249643874643876
+    },
+    {
+      "event_id": 39391,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.06170590433482803
+    },
+    {
+      "event_id": 39551,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.057814310020272264
+    },
+    {
+      "event_id": 39903,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.0932424168297456
+    },
+    {
+      "event_id": 40191,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.05285006533101044
+    },
+    {
+      "event_id": 40319,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.06322998152976972
+    },
+    {
+      "event_id": 40831,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.033675799086757996
+    },
+    {
+      "event_id": 42495,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.015480648335428837
+    },
+    {
+      "event_id": 42783,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.00761657053951692
+    },
+    {
+      "event_id": 43071,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.10293478260869565
+    },
+    {
+      "event_id": 43775,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.028871144990231634
+    },
+    {
+      "event_id": 43903,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.017871299259131113
+    },
+    {
+      "event_id": 43903,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.005352486963497771
+    },
+    {
+      "event_id": 44095,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.030830161218092234
+    },
+    {
+      "event_id": 44255,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.04635989010989011
+    },
+    {
+      "event_id": 44479,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03450554830287206
+    },
+    {
+      "event_id": 44575,
+      "models": [
+        "M4_Quantum_Adaptive_VQC"
+      ],
+      "magnitude": 0.06431230407523508
+    },
+    {
+      "event_id": 44863,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.06804940041710111
+    },
+    {
+      "event_id": 45023,
+      "models": [
+        "M6_Quantum_Adaptive_QSVM"
+      ],
+      "magnitude": 0.03160249769797424
+    },
+    {
+      "event_id": 45151,
+      "models": [
+        "M8_Control_RBF_Adaptive"
+      ],
+      "magnitude": 0.035296893147502895
     }
   ],
   "pair_agreements": {
-    "M2_M4": 0.83,
-    "M3_M4": 1.0,
-    "M5_M6": 1.0,
-    "M7_M8": 1.0
+    "M2_M4": 0.6,
+    "M3_M4": 0.53,
+    "M5_M6": 0.34,
+    "M7_M8": 0.77
   }
 }
