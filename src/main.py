@@ -75,13 +75,15 @@ class StreamingPipelineOrchestrator:
                 self.sink.write_result(result)
                 processed_count += 1
 
-                if result.drift_event is not None:
-                    logger.info(
-                        "[DRIFT ALERT] event_id=%d | magnitude=%.4f | total_drifts=%d",
-                        result.event_id,
-                        result.drift_event.magnitude,
-                        result.cumulative_drifts,
-                    )
+                if result.drift_events:
+                    for drift_rec in result.drift_events:
+                        logger.info(
+                            "[DRIFT ALERT] event_id=%d | model=%s | magnitude=%.4f | total_drifts=%d",
+                            result.event_id,
+                            ",".join(drift_rec.triggered_models),
+                            drift_rec.magnitude,
+                            result.cumulative_drifts,
+                        )
 
                 if processed_count % 50 == 0:
                     m2_acc = result.model_snapshots["M2_Classical_Adaptive_HATC"].rolling_accuracy

@@ -80,6 +80,11 @@ class InfluxTelemetrySink:
                 .field("rolling_f1", float(snap.rolling_f1))
                 .field("y_true", int(snap.y_true))
                 .field("y_pred", int(snap.y_pred))
+                .field(
+                    "cumulative_accuracy_post_warmup",
+                    float(snap.cumulative_accuracy_post_warmup),
+                )
+                .field("n_updates", int(snap.n_updates))
                 .time(now_ns, WritePrecision.NS)
             )
             points.append(p_acc)
@@ -99,16 +104,16 @@ class InfluxTelemetrySink:
             )
             points.append(p_lat)
 
-        # 3. drift_events measurement
-        drift_flag = 1 if result.drift_event is not None else 0
+        # 3. drift_events measurement (one point per event; one or more per-model alerts)
+        drift_flag = 1 if result.drift_events else 0
         drift_mag = (
-            float(result.drift_event.magnitude)
-            if result.drift_event is not None
+            max(float(rec.magnitude) for rec in result.drift_events)
+            if result.drift_events
             else 0.0
         )
         triggered_str = (
-            ",".join(result.drift_event.triggered_models)
-            if result.drift_event is not None
+            ",".join(m for rec in result.drift_events for m in rec.triggered_models)
+            if result.drift_events
             else "none"
         )
         p_drift = (
@@ -120,10 +125,22 @@ class InfluxTelemetrySink:
             .field("drift_magnitude", float(drift_mag))
             .field("triggered_models", triggered_str)
             .field("cumulative_drifts", int(result.cumulative_drifts))
-            .field("m2_m4_agreement", float(result.m2_m4_agreement))
+            .field("m2_m4_agreement", float(result.pair_agreements.get("M2_M4", 1.0)))
+            .field("m3_m4_agreement", float(result.pair_agreements.get("M3_M4", 1.0)))
+            .field("m5_m6_agreement", float(result.pair_agreements.get("M5_M6", 1.0)))
+            .field("m7_m8_agreement", float(result.pair_agreements.get("M7_M8", 1.0)))
             .time(now_ns, WritePrecision.NS)
         )
         points.append(p_drift)
+
+        # 4. adaptation_diagnostics measurement (only on adaptation events)
+        if result.adaptation_diagnostics:
+            p_diag: Point = Point("adaptation_diagnostics").field(
+                "event_id", int(result.event_id)
+            )
+            for key, value in result.adaptation_diagnostics.items():
+                p_diag = p_diag.field(key, float(value))
+            points.append(p_diag.time(now_ns, WritePrecision.NS))
         return points
 
     def write_result(self, result: EventEvaluationResult) -> bool:

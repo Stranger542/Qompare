@@ -1,16 +1,21 @@
 # src/evaluation/prequential_eval.py
-"""Test-then-train Prequential Evaluation Engine for the 3x2 Classical/Quantum Model Matrix."""
+"""Test-then-train Prequential Evaluation Engine for the 4x2 Comparative Model Matrix."""
 
 from __future__ import annotations
 
 from collections import deque
-from dataclasses import dataclass
-from typing import Deque, Dict, List, Optional
+from dataclasses import dataclass, field
+from typing import Deque, Dict, List, Optional, Tuple
 
 from src.config import PipelineConfig
 from src.evaluation.drift_manager import ADWINDriftManager, DriftEventRecord, RecoveryTracker
 from src.models.classical_models import AdaptiveHoeffdingTreeModel, StaticHoeffdingTreeModel
-from src.models.qsvm_models import DriftAdaptiveQuantumKernelModel, StaticQuantumKernelModel
+from src.models.qsvm_models import (
+    DriftAdaptiveQuantumKernelModel,
+    DriftAdaptiveRBFKernelModel,
+    StaticQuantumKernelModel,
+    StaticRBFKernelModel,
+)
 from src.models.vqc_models import DriftAdaptiveVQCModel, StaticVQCModel
 from src.worker.feature_worker import ProcessedStreamEvent, StreamFeatureWorker
 
@@ -24,6 +29,7 @@ class ModelMetricsSnapshot:
     y_pred: int
     prob_pos: float
     cumulative_accuracy: float
+    cumulative_accuracy_post_warmup: float
     rolling_accuracy: float
     rolling_precision: float
     rolling_recall: float
@@ -32,6 +38,7 @@ class ModelMetricsSnapshot:
     t_sim_ms: float
     t_update_ms: float
     t_total_ms: float
+    n_updates: int
 
 
 @dataclass(frozen=True)
@@ -44,9 +51,10 @@ class EventEvaluationResult:
     t_network_ms: float
     t_prep_ms: float
     model_snapshots: Dict[str, ModelMetricsSnapshot]
-    drift_event: Optional[DriftEventRecord]
-    cumulative_drifts: int
-    m2_m4_agreement: float
+    drift_events: List[DriftEventRecord] = field(default_factory=list)
+    cumulative_drifts: int = 0
+    pair_agreements: Dict[str, float] = field(default_factory=dict)
+    adaptation_diagnostics: Dict[str, float] = field(default_factory=dict)
 
 
 class RollingClassificationMetrics:
@@ -96,13 +104,20 @@ class RollingClassificationMetrics:
 
 
 class PrequentialEvaluator:
-    """Orchestrates strict test-then-train evaluation across M1, M2, M3, M4, M5, and M6."""
+    """Orchestrates strict test-then-train evaluation across the 4x2 model matrix (M1-M8).
+
+    Protocol per event (PLAN.md Sec. 10.5):
+      1. Forward inference for all models (labels withheld).
+      2. Reveal label, update rolling metrics, append to buffers.
+      3. Model updates (M1/M2 incremental; M3-M8 initial fit at W_0; M4/M6/M8
+         adaptation on their own ADWIN drift alerts).
+    """
 
     def __init__(self, config: PipelineConfig, worker: StreamFeatureWorker) -> None:
         self.config = config
         self.worker = worker
 
-        # Instantiate 3x2 Comparative Model Matrix
+        # Instantiate 4x2 Comparative Model Matrix
         self.m1 = StaticHoeffdingTreeModel(warmup_window_size=config.initial_warmup_window)
         self.m2 = AdaptiveHoeffdingTreeModel(
             adwin_delta=config.adwin_delta, seed=config.random_seed
@@ -114,6 +129,9 @@ class PrequentialEvaluator:
             adapt_spsa_steps=config.vqc_adapt_spsa_steps,
             spsa_lr=config.vqc_spsa_lr,
             spsa_perturbation=config.vqc_spsa_perturbation,
+            adapt_lr_scale=config.vqc_adapt_lr_scale,
+            adapt_batch_size=config.vqc_adapt_batch_size,
+            readout=config.vqc_readout,
             seed=config.random_seed,
         )
         self.m4 = DriftAdaptiveVQCModel(
@@ -123,6 +141,9 @@ class PrequentialEvaluator:
             adapt_spsa_steps=config.vqc_adapt_spsa_steps,
             spsa_lr=config.vqc_spsa_lr,
             spsa_perturbation=config.vqc_spsa_perturbation,
+            adapt_lr_scale=config.vqc_adapt_lr_scale,
+            adapt_batch_size=config.vqc_adapt_batch_size,
+            readout=config.vqc_readout,
             seed=config.random_seed,
         )
         self.m5 = StaticQuantumKernelModel(
@@ -139,6 +160,18 @@ class PrequentialEvaluator:
             svm_c=config.qsvm_c,
             seed=config.random_seed,
         )
+        self.m7 = StaticRBFKernelModel(
+            max_support_size=config.qsvm_max_support_size,
+            replace_ratio=config.qsvm_replace_ratio,
+            svm_c=config.rbf_c,
+            svm_gamma=config.rbf_gamma,
+        )
+        self.m8 = DriftAdaptiveRBFKernelModel(
+            max_support_size=config.qsvm_max_support_size,
+            replace_ratio=config.qsvm_replace_ratio,
+            svm_c=config.rbf_c,
+            svm_gamma=config.rbf_gamma,
+        )
 
         self.model_names: List[str] = [
             self.m1.name,
@@ -147,31 +180,88 @@ class PrequentialEvaluator:
             self.m4.name,
             self.m5.name,
             self.m6.name,
+            self.m7.name,
+            self.m8.name,
         ]
         self.metrics: Dict[str, RollingClassificationMetrics] = {
             name: RollingClassificationMetrics(window_size=config.rolling_metric_window)
             for name in self.model_names
         }
-        self.drift_manager = ADWINDriftManager(delta=config.adwin_delta)
-        self.recovery_tracker = RecoveryTracker(self.model_names)
-        self._m2_m4_matches: Deque[int] = deque(maxlen=config.rolling_metric_window)
+        self.update_counts: Dict[str, int] = {name: 0 for name in self.model_names}
+
+        # One independent ADWIN detector per adaptive model, on its own prequential error.
+        self.adaptive_models = {
+            self.m4.name: self.m4,
+            self.m6.name: self.m6,
+            self.m8.name: self.m8,
+        }
+        self.drift_managers: Dict[str, ADWINDriftManager] = {
+            name: ADWINDriftManager(delta=config.adwin_delta) for name in self.adaptive_models
+        }
+        self.recovery_tracker = RecoveryTracker(
+            self.model_names,
+            recovery_epsilon=config.recovery_epsilon,
+            sustain_events=config.recovery_sustain_events,
+            recovery_horizon=config.recovery_horizon,
+        )
+
+        self._pair_windows: Dict[str, Deque[int]] = {
+            "M2_M4": deque(maxlen=config.rolling_metric_window),
+            "M3_M4": deque(maxlen=config.rolling_metric_window),
+            "M5_M6": deque(maxlen=config.rolling_metric_window),
+            "M7_M8": deque(maxlen=config.rolling_metric_window),
+        }
+        self._label_counts: List[int] = [0, 0]
+        self._post_warmup_seen: Dict[str, int] = {name: 0 for name in self.model_names}
+        self._post_warmup_correct: Dict[str, int] = {name: 0 for name in self.model_names}
         self._quantum_initialized: bool = False
 
+    def _majority_label(self) -> int:
+        return 1 if self._label_counts[1] > self._label_counts[0] else 0
+
+    def _record_pair_agreement(self, key: str, a: int, b: int) -> None:
+        self._pair_windows[key].append(1 if a == b else 0)
+
+    def _pair_agreement(self, key: str) -> float:
+        window = self._pair_windows[key]
+        return float(sum(window) / len(window)) if window else 1.0
+
     def evaluate_event(self, event: ProcessedStreamEvent) -> EventEvaluationResult:
-        """Execute 1) Forward Inference -> 2) Metric Update -> 3) Drift Test & Model Updates."""
+        """Execute 1) Forward Inference -> 2) Metric Update -> 3) Drift Tests & Model Updates."""
         x_dict = event.features_dict
         x_arr = event.features_array
         y_true = event.label
+        post_warmup = event.event_id >= self.config.initial_warmup_window
 
         # =====================================================================
         # STEP 1: PREQUENTIAL FORWARD INFERENCE (BEFORE LABEL IS REVEALED)
         # =====================================================================
+        # Uninitialized quantum/kernel models predict the running majority class
+        # (warmup policy, PLAN.md Sec. 11) instead of a hardcoded constant.
+        maj = self._majority_label()
         p1, prob1, sim1 = self.m1.predict(x_dict)
         p2, prob2, sim2 = self.m2.predict(x_dict)
         p3, prob3, enc3, sim3 = self.m3.predict(x_arr)
         p4, prob4, enc4, sim4 = self.m4.predict(x_arr)
         p5, prob5, enc5, sim5 = self.m5.predict(x_arr)
         p6, prob6, enc6, sim6 = self.m6.predict(x_arr)
+        p7, prob7, t7 = self.m7.predict(x_arr)
+        p8, prob8, t8 = self.m8.predict(x_arr)
+        enc7 = enc8 = 0.0
+        sim7, sim8 = t7, t8
+
+        if not self.m3.is_initialized:
+            p3, prob3 = maj, float(maj)
+        if not self.m4.is_initialized:
+            p4, prob4 = maj, float(maj)
+        if not self.m5.is_initialized:
+            p5, prob5 = maj, float(maj)
+        if not self.m6.is_initialized:
+            p6, prob6 = maj, float(maj)
+        if not self.m7.is_initialized:
+            p7, prob7 = maj, float(maj)
+        if not self.m8.is_initialized:
+            p8, prob8 = maj, float(maj)
 
         preds = {
             self.m1.name: (p1, prob1, 0.0, sim1),
@@ -180,6 +270,8 @@ class PrequentialEvaluator:
             self.m4.name: (p4, prob4, enc4, sim4),
             self.m5.name: (p5, prob5, enc5, sim5),
             self.m6.name: (p6, prob6, enc6, sim6),
+            self.m7.name: (p7, prob7, enc7, sim7),
+            self.m8.name: (p8, prob8, enc8, sim8),
         }
 
         # =====================================================================
@@ -189,9 +281,16 @@ class PrequentialEvaluator:
         for m_name, (pred_label, _, _, _) in preds.items():
             pre_drift_acc[m_name] = self.metrics[m_name].compute_rolling()[0]
             self.metrics[m_name].update(y_true, pred_label)
+            if post_warmup:
+                self._post_warmup_seen[m_name] += 1
+                if pred_label == y_true:
+                    self._post_warmup_correct[m_name] += 1
 
-        self._m2_m4_matches.append(1 if p2 == p4 else 0)
-        m2_m4_agreement = float(sum(self._m2_m4_matches) / len(self._m2_m4_matches))
+        self._label_counts[y_true] += 1
+        self._record_pair_agreement("M2_M4", p2, p4)
+        self._record_pair_agreement("M3_M4", p3, p4)
+        self._record_pair_agreement("M5_M6", p5, p6)
+        self._record_pair_agreement("M7_M8", p7, p8)
 
         # Append current labeled event to sliding & warmup windows now that prediction is done
         self.worker.record_post_inference(event)
@@ -200,10 +299,12 @@ class PrequentialEvaluator:
         # STEP 3: DRIFT DETECTION & PERMITTED MODEL UPDATES
         # =====================================================================
         upd1 = self.m1.update(x_dict, y_true)
+        self.update_counts[self.m1.name] += 1
         upd2 = self.m2.update(x_dict, y_true)
-        upd3 = upd4 = upd5 = upd6 = 0.0
+        self.update_counts[self.m2.name] += 1
+        upd3 = upd4 = upd5 = upd6 = upd7 = upd8 = 0.0
 
-        # Check if initial warmup window W_0 has just filled to initialize M3, M4, M5, M6
+        # Check if initial warmup window W_0 has just filled to initialize M3-M8
         if (
             not self._quantum_initialized
             and len(self.worker.warmup_buffer) >= self.config.initial_warmup_window
@@ -216,29 +317,67 @@ class PrequentialEvaluator:
             upd4 = upd3
             upd5 = self.m5.fit_initial(X_w0, y_w0)
             upd6 = self.m6.fit_initial(X_w0, y_w0)
+            upd7 = self.m7.fit_initial(X_w0, y_w0)
+            upd8 = self.m8.fit_initial(X_w0, y_w0)
+            for name in (
+                self.m3.name,
+                self.m4.name,
+                self.m5.name,
+                self.m6.name,
+                self.m7.name,
+                self.m8.name,
+            ):
+                self.update_counts[name] += 1
             self._quantum_initialized = True
 
-        # Check ADWIN drift detector using reference adaptive stream residual
-        drift_record = self.drift_manager.update_and_check(
-            event_id=event.event_id,
-            timestamp=event.timestamp,
-            y_true=y_true,
-            y_pred_reference=p4 if self._quantum_initialized else p2,
-        )
-
-        if drift_record is not None and self._quantum_initialized:
-            self.recovery_tracker.register_drift(event.event_id, pre_drift_acc)
-            X_wt, y_wt = self.worker.sliding_buffer.get_arrays()
-            upd4 += self.m4.adapt_on_drift(X_wt, y_wt)
-            upd6 += self.m6.adapt_on_drift(X_wt, y_wt)
+        # Per-model ADWIN drift detection on each adaptive model's own prequential error
+        drift_records: List[DriftEventRecord] = []
+        adaptation_diagnostics: Dict[str, float] = {}
+        adaptive_preds = {
+            self.m4.name: p4,
+            self.m6.name: p6,
+            self.m8.name: p8,
+        }
+        update_times = {
+            self.m4.name: upd4,
+            self.m6.name: upd6,
+            self.m8.name: upd8,
+        }
+        for m_name, model in self.adaptive_models.items():
+            drift_record = self.drift_managers[m_name].update_and_check(
+                event_id=event.event_id,
+                timestamp=event.timestamp,
+                y_true=y_true,
+                y_pred_reference=adaptive_preds[m_name],
+                triggered_models=[m_name],
+            )
+            if drift_record is not None:
+                drift_records.append(drift_record)
+                if self._quantum_initialized:
+                    self.recovery_tracker.register_drift(
+                        m_name, event.event_id, pre_drift_acc[m_name]
+                    )
+                    X_wt, y_wt = self.worker.sliding_buffer.get_arrays()
+                    update_times[m_name] += model.adapt_on_drift(X_wt, y_wt)
+                    self.update_counts[m_name] += 1
+                    if m_name == self.m4.name:
+                        adaptation_diagnostics["M4_weight_delta_norm"] = (
+                            self.m4.last_weight_delta_norm
+                        )
+                    elif m_name == self.m6.name:
+                        adaptation_diagnostics["M6_support_churn"] = self.m6.last_support_churn
+                    elif m_name == self.m8.name:
+                        adaptation_diagnostics["M8_support_churn"] = self.m8.last_support_churn
 
         updates = {
             self.m1.name: upd1,
             self.m2.name: upd2,
             self.m3.name: upd3,
-            self.m4.name: upd4,
+            self.m4.name: update_times[self.m4.name],
             self.m5.name: upd5,
-            self.m6.name: upd6,
+            self.m6.name: update_times[self.m6.name],
+            self.m7.name: upd7,
+            self.m8.name: update_times[self.m8.name],
         }
 
         # Build per-model telemetry snapshots
@@ -249,6 +388,10 @@ class PrequentialEvaluator:
             t_upd = updates[m_name]
             r_acc, r_prec, r_rec, r_f1 = self.metrics[m_name].compute_rolling()
             current_rolling_acc[m_name] = r_acc
+            n_seen = self._post_warmup_seen[m_name]
+            post_acc = (
+                self._post_warmup_correct[m_name] / n_seen if n_seen > 0 else 0.0
+            )
             t_tot = event.t_network_ms + event.t_prep_ms + t_enc + t_sim + t_upd
 
             snapshots[m_name] = ModelMetricsSnapshot(
@@ -257,6 +400,7 @@ class PrequentialEvaluator:
                 y_pred=pred_label,
                 prob_pos=prob_pos,
                 cumulative_accuracy=self.metrics[m_name].cumulative_accuracy,
+                cumulative_accuracy_post_warmup=post_acc,
                 rolling_accuracy=r_acc,
                 rolling_precision=r_prec,
                 rolling_recall=r_rec,
@@ -265,6 +409,7 @@ class PrequentialEvaluator:
                 t_sim_ms=t_sim,
                 t_update_ms=t_upd,
                 t_total_ms=t_tot,
+                n_updates=self.update_counts[m_name],
             )
 
         self.recovery_tracker.observe_accuracies(event.event_id, current_rolling_acc)
@@ -276,10 +421,13 @@ class PrequentialEvaluator:
             t_network_ms=event.t_network_ms,
             t_prep_ms=event.t_prep_ms,
             model_snapshots=snapshots,
-            drift_event=drift_record,
-            cumulative_drifts=self.drift_manager.cumulative_drifts,
-            m2_m4_agreement=m2_m4_agreement,
+            drift_events=drift_records,
+            cumulative_drifts=sum(dm.cumulative_drifts for dm in self.drift_managers.values()),
+            pair_agreements={
+                "M2_M4": self._pair_agreement("M2_M4"),
+                "M3_M4": self._pair_agreement("M3_M4"),
+                "M5_M6": self._pair_agreement("M5_M6"),
+                "M7_M8": self._pair_agreement("M7_M8"),
+            },
+            adaptation_diagnostics=adaptation_diagnostics,
         )
-
-
-    

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import time
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 from qiskit.circuit import QuantumCircuit
@@ -27,6 +27,9 @@ class BaseQiskitVQC:
         adapt_spsa_steps: int = 10,
         spsa_lr: float = 0.15,
         spsa_perturbation: float = 0.10,
+        adapt_lr_scale: float = 0.75,
+        adapt_batch_size: int = 0,
+        readout: str = "parity",
         seed: int = 42,
     ) -> None:
         self.num_qubits = num_qubits
@@ -35,6 +38,9 @@ class BaseQiskitVQC:
         self.adapt_spsa_steps = adapt_spsa_steps
         self.spsa_lr = spsa_lr
         self.spsa_perturbation = spsa_perturbation
+        self.adapt_lr_scale = adapt_lr_scale
+        self.adapt_batch_size = adapt_batch_size
+        self.readout = readout
         self.rng = np.random.default_rng(seed)
 
         # Build Qiskit Feature Map (5 qubits) and Variational Ansatz (depth=2 -> 15 params)
@@ -59,8 +65,15 @@ class BaseQiskitVQC:
             -0.3, 0.3, size=self.num_weights
         ).astype(np.float64)
 
-        # Parity observable Z^{\otimes 5} with eigenvalues in {-1, +1}
-        self.observable = SparsePauliOp.from_list([("Z" * num_qubits, 1.0)])
+        # Readout observable with eigenvalues in {-1, +1}:
+        # 'parity' -> Z^{\otimes 5}, 'z0' -> Z on qubit 0 (Pauli label is little-endian).
+        if readout == "parity":
+            pauli_label = "Z" * num_qubits
+        elif readout == "z0":
+            pauli_label = "I" * (num_qubits - 1) + "Z"
+        else:
+            raise ValueError(f"Unknown readout '{readout}'; expected 'parity' or 'z0'.")
+        self.observable = SparsePauliOp.from_list([(pauli_label, 1.0)])
         self.is_initialized: bool = False
 
     def _forward_single(
@@ -118,7 +131,7 @@ class BaseQiskitVQC:
         X_window: np.ndarray,
         y_window: np.ndarray,
         n_steps: int,
-        batch_size: int = 24,
+        batch_size: Optional[int] = None,
         lr_scale: float = 1.0,
     ) -> float:
         """Run warm-started SPSA optimization steps on the provided window.
@@ -127,7 +140,8 @@ class BaseQiskitVQC:
             X_window: Array of shape (N, 5) with features in [0, pi].
             y_window: Array of shape (N,) with binary labels {0, 1}.
             n_steps: Number of SPSA simultaneous perturbation steps.
-            batch_size: Subsample size per step for bounded latency.
+            batch_size: Subsample size per step; None -> self.adapt_batch_size;
+                0 -> full window per step (no subsampling).
             lr_scale: Multiplier on base learning rate for warm fine-tuning.
 
         Returns:
@@ -138,7 +152,9 @@ class BaseQiskitVQC:
 
         t_start = time.perf_counter_ns()
         n_samples = len(X_window)
-        effective_batch = min(batch_size, n_samples)
+        if batch_size is None:
+            batch_size = self.adapt_batch_size
+        effective_batch = n_samples if batch_size <= 0 else min(batch_size, n_samples)
 
         for k in range(1, n_steps + 1):
             if n_samples > effective_batch:
@@ -178,7 +194,11 @@ class StaticVQCModel(BaseQiskitVQC):
         if self.is_initialized:
             return 0.0
         return self._run_spsa_optimization(
-            X_warmup, y_warmup, n_steps=self.initial_spsa_steps, lr_scale=1.0
+            X_warmup,
+            y_warmup,
+            n_steps=self.initial_spsa_steps,
+            batch_size=24,
+            lr_scale=1.0,
         )
 
 
@@ -194,27 +214,40 @@ class DriftAdaptiveVQCModel(BaseQiskitVQC):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.adaptation_count: int = 0
+        self.last_weight_delta_norm: float = 0.0
 
     def fit_initial(self, X_warmup: np.ndarray, y_warmup: np.ndarray) -> float:
         """Fit initial circuit weights on W_0."""
         if self.is_initialized:
             return 0.0
         return self._run_spsa_optimization(
-            X_warmup, y_warmup, n_steps=self.initial_spsa_steps, lr_scale=1.0
+            X_warmup,
+            y_warmup,
+            n_steps=self.initial_spsa_steps,
+            batch_size=24,
+            lr_scale=1.0,
         )
 
     def adapt_on_drift(self, X_sliding: np.ndarray, y_sliding: np.ndarray) -> float:
-        """Execute warm-started 10-step SPSA fine-tuning on recent sliding window W_t."""
+        """Execute warm-started SPSA fine-tuning on recent sliding window W_t.
+
+        Batch size and learning-rate scale come from configuration
+        (`vqc_adapt_batch_size`, `vqc_adapt_lr_scale`) so adaptation strength can
+        be ablated; records the weight displacement for adaptation diagnostics.
+        """
         if len(X_sliding) < 4:
             return 0.0
-        self.adaptation_count += 1
-        return self._run_spsa_optimization(
+        weights_before = self.weights.copy()
+        t_update_ms = self._run_spsa_optimization(
             X_sliding,
             y_sliding,
             n_steps=self.adapt_spsa_steps,
-            batch_size=min(24, len(X_sliding)),
-            lr_scale=0.75,
+            batch_size=self.adapt_batch_size,
+            lr_scale=self.adapt_lr_scale,
         )
+        self.adaptation_count += 1
+        self.last_weight_delta_norm = float(np.linalg.norm(self.weights - weights_before))
+        return t_update_ms
 
 
     

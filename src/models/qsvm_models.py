@@ -193,21 +193,25 @@ class ClassicalRBFKernelModel:
     across varying support set budgets.
     """
 
-    name: str = "Control_Classical_Adaptive_RBF"
+    name: str = "Control_Classical_RBF"
 
     def __init__(
         self,
         max_support_size: int = 80,
         replace_ratio: float = 0.20,
         svm_c: float = 1.0,
+        svm_gamma: str | float = "scale",
     ) -> None:
         self.max_support_size = max_support_size
         self.replace_ratio = replace_ratio
         self.svm_c = svm_c
+        self.svm_gamma = svm_gamma
         self.support_X: Optional[np.ndarray] = None
         self.support_y: Optional[np.ndarray] = None
         self.svc: Optional[SVC] = None
         self.is_initialized: bool = False
+        self.adaptation_count: int = 0
+        self.last_support_churn: float = 0.0
 
     def fit_support(self, X_sup: np.ndarray, y_sup: np.ndarray) -> float:
         t0 = time.perf_counter_ns()
@@ -217,7 +221,13 @@ class ClassicalRBFKernelModel:
         self.support_X = X_sup.copy()
         self.support_y = y_sup.copy()
         if len(np.unique(y_sup)) >= 2:
-            self.svc = SVC(kernel="rbf", C=self.svm_c, probability=True, random_state=42)
+            self.svc = SVC(
+                kernel="rbf",
+                C=self.svm_c,
+                gamma=self.svm_gamma,
+                probability=True,
+                random_state=42,
+            )
             self.svc.fit(self.support_X, self.support_y)
         else:
             self.svc = None
@@ -251,5 +261,43 @@ class ClassicalRBFKernelModel:
         if len(np.unique(updated_y)) < 2 and len(np.unique(y_sliding)) >= 2:
             updated_X = X_sliding[-self.max_support_size :]
             updated_y = y_sliding[-self.max_support_size :]
+        self.adaptation_count += 1
+        self.last_support_churn = n_replace / max(1, len(self.support_X))
         return self.fit_support(updated_X, updated_y)
+
+
+class StaticRBFKernelModel(ClassicalRBFKernelModel):
+    """M7: Static Classical RBF control.
+
+    Fitted once on the initial warmup window W_0 and frozen thereafter; mirrors M5's
+    support budget so the quantum kernel has a capacity-matched classical counterpart.
+    """
+
+    name: str = "M7_Control_RBF_Static"
+
+    def fit_initial(self, X_warmup: np.ndarray, y_warmup: np.ndarray) -> float:
+        """Fit the RBF SVM on W_0 once."""
+        if self.is_initialized:
+            return 0.0
+        return self.fit_support(X_warmup, y_warmup)
+
+    def adapt_on_drift(self, X_sliding: np.ndarray, y_sliding: np.ndarray) -> float:
+        """Static control never adapts."""
+        return 0.0
+
+
+class DriftAdaptiveRBFKernelModel(ClassicalRBFKernelModel):
+    """M8: Drift-Adaptive Classical RBF control.
+
+    Applies the exact same sliding-support refresh rule as M6 on ADWIN drift alerts,
+    isolating the quantum-vs-classical kernel comparison from the adaptation mechanism.
+    """
+
+    name: str = "M8_Control_RBF_Adaptive"
+
+    def fit_initial(self, X_warmup: np.ndarray, y_warmup: np.ndarray) -> float:
+        """Fit the RBF SVM on W_0 once."""
+        if self.is_initialized:
+            return 0.0
+        return self.fit_support(X_warmup, y_warmup)
     

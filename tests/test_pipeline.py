@@ -11,7 +11,12 @@ from src.config import FEATURE_NAMES, PipelineConfig
 from src.evaluation.drift_manager import ADWINDriftManager, RecoveryTracker
 from src.evaluation.prequential_eval import PrequentialEvaluator
 from src.models.classical_models import AdaptiveHoeffdingTreeModel, StaticHoeffdingTreeModel
-from src.models.qsvm_models import DriftAdaptiveQuantumKernelModel, StaticQuantumKernelModel
+from src.models.qsvm_models import (
+    DriftAdaptiveQuantumKernelModel,
+    DriftAdaptiveRBFKernelModel,
+    StaticQuantumKernelModel,
+    StaticRBFKernelModel,
+)
 from src.models.vqc_models import DriftAdaptiveVQCModel, StaticVQCModel
 from src.producer.elec2_producer import serialize_elec2_event
 from src.sink.influx_sink import InfluxTelemetrySink
@@ -174,10 +179,10 @@ def test_prequential_evaluator_and_influx_points_end_to_end() -> None:
         ev = worker.process_raw_payload(payload)
         assert ev is not None
         res = evaluator.evaluate_event(ev)
-        assert len(res.model_snapshots) == 6
+        assert len(res.model_snapshots) == 8
         points = sink.build_points(res)
-        # 6 models * 2 measurements (accuracy + latency) + 1 drift measurement = 13 Influx points
-        assert len(points) == 13
+        # 8 models * 2 measurements (accuracy + latency) + 1 drift measurement = 17 Influx points
+        assert len(points) == 17
 
 
 def test_edge_cases_empty_window_and_non_finite_features() -> None:
@@ -200,11 +205,10 @@ def test_edge_cases_empty_window_and_non_finite_features() -> None:
 
 
 def test_adwin_drift_and_recovery_tracker() -> None:
-    """Verify ADWIN detects synthetic error jump and RecoveryTracker computes N_recovery."""
+    """Verify ADWIN detects a synthetic error jump and RecoveryTracker computes N_recovery."""
     dm = ADWINDriftManager(delta=0.01)
-    rt = RecoveryTracker(["M4_Quantum_Adaptive_VQC"], recovery_ratio=0.95)
 
-    # Feed 100 zero-error predictions followed by 100 high-error predictions
+    # Feed 100 zero-error predictions followed by high-error predictions
     drift_rec = None
     for i in range(200):
         y_true = 1
@@ -217,6 +221,124 @@ def test_adwin_drift_and_recovery_tracker() -> None:
     assert drift_rec is not None
     assert dm.cumulative_drifts >= 1
 
-    rt.register_drift(drift_rec.event_id, {"M4_Quantum_Adaptive_VQC": 0.80})
-    rt.observe_accuracies(drift_rec.event_id + 12, {"M4_Quantum_Adaptive_VQC": 0.78})
-    assert rt.mean_recovery_events("M4_Quantum_Adaptive_VQC") == 12.0
+    # N_recovery: dip below (pre-drift - eps) must occur, then a sustained re-entry
+    # into the band counts from the drift onset to the first qualifying event.
+    rt = RecoveryTracker(
+        ["M4_Quantum_Adaptive_VQC"],
+        recovery_epsilon=0.02,
+        sustain_events=3,
+        recovery_horizon=50,
+    )
+    rt.register_drift("M4_Quantum_Adaptive_VQC", 100, 0.80)  # target band: 0.78
+    rt.observe_accuracies(110, {"M4_Quantum_Adaptive_VQC": 0.70})  # dip
+    rt.observe_accuracies(120, {"M4_Quantum_Adaptive_VQC": 0.79})  # first hit
+    rt.observe_accuracies(121, {"M4_Quantum_Adaptive_VQC": 0.79})  # sustained
+    rt.observe_accuracies(122, {"M4_Quantum_Adaptive_VQC": 0.79})  # confirmed
+    assert rt.mean_recovery_events("M4_Quantum_Adaptive_VQC") == 20.0
+
+
+def test_recovery_tracker_never_degraded_and_censoring() -> None:
+    """A model that never dips scores N_recovery=0; a new drift censors a pending episode."""
+    rt = RecoveryTracker(
+        ["M1", "M2"], recovery_epsilon=0.02, sustain_events=2, recovery_horizon=10
+    )
+
+    # M1 never degrades: stays in the band until the horizon passes
+    rt.register_drift("M1", 100, 0.80)
+    for t in range(101, 116):
+        rt.observe_accuracies(t, {"M1": 0.85})
+    assert rt.mean_recovery_events("M1") == 0.0
+    assert rt.completed_recoveries("M1")[0].never_degraded is True
+
+    # M2 dips but a second drift arrives before recovery: episode is censored
+    rt.register_drift("M2", 200, 0.80)
+    rt.observe_accuracies(205, {"M2": 0.50})
+    rt.register_drift("M2", 210, 0.60)  # censors the in-flight episode
+    censored = [r for r in rt.records if r.model_name == "M2" and not r.completed]
+    assert len(censored) == 1
+
+
+def test_rbf_static_and_adaptive_controls() -> None:
+    """Verify M7 fits once and freezes while M8 refreshes its support set on adaptation."""
+    rng = np.random.default_rng(11)
+    X_w0 = rng.uniform(0.0, math.pi, size=(12, 5))
+    y_w0 = np.array([0, 1] * 6, dtype=np.int64)
+
+    m7 = StaticRBFKernelModel(max_support_size=10, replace_ratio=0.2)
+    m8 = DriftAdaptiveRBFKernelModel(max_support_size=10, replace_ratio=0.2)
+    m7.fit_initial(X_w0, y_w0)
+    m8.fit_initial(X_w0, y_w0)
+
+    pred7, prob7, t7 = m7.predict(X_w0[0])
+    assert pred7 in (0, 1) and 0.0 <= prob7 <= 1.0 and t7 >= 0.0
+
+    X_new = rng.uniform(0.0, math.pi, size=(6, 5))
+    y_new = np.array([1, 0, 1, 0, 1, 0], dtype=np.int64)
+    assert m7.adapt_on_drift(X_new, y_new) == 0.0  # static control never adapts
+    assert m8.adapt_on_drift(X_new, y_new) > 0.0
+    assert m8.adaptation_count == 1
+    assert 0.0 < m8.last_support_churn <= 1.0
+
+
+def test_uninitialized_models_predict_majority_class() -> None:
+    """Warmup policy: uninitialized quantum/kernel models follow the running majority label."""
+    cfg = PipelineConfig(
+        initial_warmup_window=50,
+        sliding_window_size=10,
+        vqc_initial_spsa_steps=2,
+        vqc_adapt_spsa_steps=2,
+        qsvm_max_support_size=10,
+        influxdb_enabled=False,
+    )
+    worker = StreamFeatureWorker(cfg)
+    evaluator = PrequentialEvaluator(cfg, worker)
+
+    # Ten events labeled 1 -> majority class is 1 once any label has been seen
+    for idx in range(10):
+        payload = serialize_elec2_event(idx, _sample_raw_features(offset=idx * 0.03), 1)
+        ev = worker.process_raw_payload(payload)
+        res = evaluator.evaluate_event(ev)
+        if ev.event_id == 0:
+            continue  # no labels observed yet at the very first event
+        for name in evaluator.model_names[2:]:  # M3-M8 uninitialized during warmup
+            assert res.model_snapshots[name].y_pred == 1
+
+
+def test_post_warmup_metrics_and_update_counts() -> None:
+    """Post-warmup accuracy is tracked and update counts grow only on actual updates."""
+    cfg = PipelineConfig(
+        initial_warmup_window=10,
+        sliding_window_size=10,
+        rolling_metric_window=10,
+        vqc_initial_spsa_steps=2,
+        vqc_adapt_spsa_steps=2,
+        qsvm_max_support_size=10,
+        influxdb_enabled=False,
+    )
+    worker = StreamFeatureWorker(cfg)
+    evaluator = PrequentialEvaluator(cfg, worker)
+
+    last_res = None
+    for idx in range(15):
+        payload = serialize_elec2_event(idx, _sample_raw_features(offset=idx * 0.03), idx % 2)
+        ev = worker.process_raw_payload(payload)
+        last_res = evaluator.evaluate_event(ev)
+
+    snap_m3 = last_res.model_snapshots["M3_Quantum_Static_VQC"]
+    assert 0.0 <= snap_m3.cumulative_accuracy_post_warmup <= 1.0
+    assert snap_m3.n_updates == 1  # initial fit only
+    snap_m2 = last_res.model_snapshots["M2_Classical_Adaptive_HATC"]
+    assert snap_m2.n_updates == 15  # updates every event
+    assert last_res.pair_agreements.keys() == {"M2_M4", "M3_M4", "M5_M6", "M7_M8"}
+
+
+def test_config_requires_influx_token_when_enabled() -> None:
+    """The InfluxDB sink refuses to run enabled without a token from the environment."""
+    import os
+
+    os.environ.pop("INFLUXDB_TOKEN", None)
+    cfg = PipelineConfig(influxdb_enabled=True)
+    with pytest.raises(ValueError, match="INFLUXDB_TOKEN"):
+        cfg.validate()
+    cfg_off = PipelineConfig(influxdb_enabled=False)
+    cfg_off.validate()  # disabled sink needs no token

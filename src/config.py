@@ -121,6 +121,11 @@ class PipelineConfig:
     recovery_sustain_events: int = field(
         default_factory=lambda: int(os.getenv("RECOVERY_SUSTAIN_EVENTS", "20"))
     )
+    # Events after a drift alert within which a model must show degradation,
+    # otherwise the episode is recorded as "never degraded" (N_recovery = 0).
+    recovery_horizon: int = field(
+        default_factory=lambda: int(os.getenv("RECOVERY_HORIZON", "300"))
+    )
 
     # InfluxDB v2 settings
     influxdb_url: str = field(
@@ -171,6 +176,8 @@ class PipelineConfig:
             raise ValueError("recovery_epsilon must be in [0.0, 1.0).")
         if self.recovery_sustain_events < 1:
             raise ValueError("recovery_sustain_events must be >= 1.")
+        if self.recovery_horizon < self.recovery_sustain_events:
+            raise ValueError("recovery_horizon must be >= recovery_sustain_events.")
         if self.qsvm_max_support_size < 2:
             raise ValueError("qsvm_max_support_size must be >= 2.")
         if self.influxdb_enabled and not self.influxdb_token:
