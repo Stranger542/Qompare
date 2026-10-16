@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+.pytest_cache/
+*.egg-info/
+.DS_Store
+
+# Intermediate experiment outputs (final report figures are committed deliberately)
+experiments/plots/*.tmp

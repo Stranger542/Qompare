@@ -13,6 +13,6 @@ datasources:
       defaultBucket: streaming_quantum
       tlsSkipVerify: true
     secureJsonData:
-      token: ioe413-super-secret-auth-token
+      token: $INFLUXDB_TOKEN
 
       

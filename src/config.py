@@ -76,6 +76,17 @@ class PipelineConfig:
     vqc_spsa_perturbation: float = field(
         default_factory=lambda: float(os.getenv("VQC_SPSA_PERTURBATION", "0.10"))
     )
+    vqc_adapt_lr_scale: float = field(
+        default_factory=lambda: float(os.getenv("VQC_ADAPT_LR_SCALE", "0.75"))
+    )
+    # 0 means full-window loss for drift fine-tuning; >0 subsamples a mini-batch per step
+    vqc_adapt_batch_size: int = field(
+        default_factory=lambda: int(os.getenv("VQC_ADAPT_BATCH_SIZE", "0"))
+    )
+    # Readout observable: 'parity' (Z^{\otimes 5}) or 'z0' (Z on qubit 0)
+    vqc_readout: str = field(
+        default_factory=lambda: os.getenv("VQC_READOUT", "parity").lower()
+    )
 
     # Quantum Kernel settings
     qsvm_max_support_size: int = field(
@@ -88,9 +99,27 @@ class PipelineConfig:
         default_factory=lambda: float(os.getenv("QSVM_C", "1.0"))
     )
 
+    # Classical RBF control (M7/M8) settings
+    rbf_c: float = field(
+        default_factory=lambda: float(os.getenv("RBF_C", "1.0"))
+    )
+    rbf_gamma: str = field(
+        default_factory=lambda: os.getenv("RBF_GAMMA", "scale")
+    )
+
     # Drift Detection settings
     adwin_delta: float = field(
         default_factory=lambda: float(os.getenv("ADWIN_DELTA", "0.002"))
+    )
+
+    # Drift recovery metric definition: rolling accuracy must reach
+    # (pre-drift rolling accuracy - recovery_epsilon) and stay there for
+    # recovery_sustain_events consecutive events to count as recovered.
+    recovery_epsilon: float = field(
+        default_factory=lambda: float(os.getenv("RECOVERY_EPSILON", "0.02"))
+    )
+    recovery_sustain_events: int = field(
+        default_factory=lambda: int(os.getenv("RECOVERY_SUSTAIN_EVENTS", "20"))
     )
 
     # InfluxDB v2 settings
@@ -98,9 +127,7 @@ class PipelineConfig:
         default_factory=lambda: os.getenv("INFLUXDB_URL", "http://localhost:8086")
     )
     influxdb_token: str = field(
-        default_factory=lambda: os.getenv(
-            "INFLUXDB_TOKEN", "ioe413-super-secret-auth-token"
-        )
+        default_factory=lambda: os.getenv("INFLUXDB_TOKEN", "")
     )
     influxdb_org: str = field(
         default_factory=lambda: os.getenv("INFLUXDB_ORG", "ioe413-org")
@@ -136,6 +163,21 @@ class PipelineConfig:
             raise ValueError("vqc_ansatz_reps must be >= 1.")
         if self.adwin_delta <= 0.0 or self.adwin_delta >= 1.0:
             raise ValueError("adwin_delta must be strictly between 0 and 1.")
+        if self.vqc_adapt_batch_size < 0:
+            raise ValueError("vqc_adapt_batch_size must be >= 0 (0 = full window).")
+        if self.vqc_readout not in ("parity", "z0"):
+            raise ValueError("vqc_readout must be 'parity' or 'z0'.")
+        if self.recovery_epsilon < 0.0 or self.recovery_epsilon >= 1.0:
+            raise ValueError("recovery_epsilon must be in [0.0, 1.0).")
+        if self.recovery_sustain_events < 1:
+            raise ValueError("recovery_sustain_events must be >= 1.")
+        if self.qsvm_max_support_size < 2:
+            raise ValueError("qsvm_max_support_size must be >= 2.")
+        if self.influxdb_enabled and not self.influxdb_token:
+            raise ValueError(
+                "INFLUXDB_TOKEN must be set when influxdb_enabled is true. "
+                "Copy .env.example to .env and set INFLUXDB_TOKEN (never commit it)."
+            )
 
 
 def configure_logging(level_name: str = "INFO") -> None:

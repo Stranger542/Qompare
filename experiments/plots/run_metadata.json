@@ -29,7 +29,7 @@
     "qsvm_c": 1.0,
     "adwin_delta": 0.002,
     "influxdb_url": "http://localhost:8086",
-    "influxdb_token": "ioe413-super-secret-auth-token",
+    "influxdb_token": "<redacted>",
     "influxdb_org": "ioe413-org",
     "influxdb_bucket": "streaming_quantum",
     "influxdb_enabled": false,

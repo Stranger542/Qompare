@@ -45,10 +45,10 @@ services:
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:?Set INFLUXDB_ADMIN_PASSWORD in .env}
       DOCKER_INFLUXDB_INIT_ORG: ioe413-org
       DOCKER_INFLUXDB_INIT_BUCKET: streaming_quantum
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ioe413-super-secret-auth-token
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:?Set INFLUXDB_TOKEN in .env}
     volumes:
       - influxdb_data:/var/lib/influxdb2
     healthcheck:
@@ -67,8 +67,9 @@ services:
       - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Set INFLUXDB_TOKEN in .env}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
