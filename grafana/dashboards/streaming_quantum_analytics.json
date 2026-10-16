@@ -2,11 +2,14 @@
   "annotations": {
     "list": [
       {
-        "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+        "datasource": {
+          "type": "influxdb",
+          "uid": "influxdb_quantum_uid"
+        },
         "enable": true,
         "iconColor": "rgba(255, 50, 50, 1)",
         "name": "ADWIN Concept Drift Alerts",
-        "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"drift_detected\" and r._value == 1)"
+        "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"drift_detected\" and r._value == 1)"
       }
     ]
   },
@@ -20,12 +23,20 @@
       "id": 1,
       "title": "Panel 1A: Stream Throughput Gauge (Events/sec)",
       "type": "gauge",
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -2m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> derivative(unit: 1s, nonNegative: true)\n  |> last()"
         }
       ],
       "fieldConfig": {
@@ -36,8 +47,14 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "yellow", "value": null },
-              { "color": "green", "value": 1 }
+              {
+                "color": "yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
           }
         }
@@ -47,12 +64,20 @@
       "id": 2,
       "title": "Panel 1B: Cumulative Processed Events",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> count()"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"event_id\")\n  |> count()"
         }
       ]
     },
@@ -60,12 +85,20 @@
       "id": 3,
       "title": "Panel 4: Classical Adaptive (M2) vs Drift-Adaptive VQC (M4) Agreement",
       "type": "gauge",
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"m2_m4_agreement\")\n  |> last()"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"m2_m4_agreement\")\n  |> last()"
         }
       ],
       "fieldConfig": {
@@ -76,9 +109,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 0.6 },
-              { "color": "green", "value": 0.75 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.6
+              },
+              {
+                "color": "green",
+                "value": 0.75
+              }
             ]
           }
         }
@@ -88,12 +130,20 @@
       "id": 4,
       "title": "Cumulative ADWIN Concept Drift Alerts",
       "type": "stat",
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"cumulative_drifts\")\n  |> last()"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"drift_events\" and r._field == \"cumulative_drifts\")\n  |> last()"
         }
       ]
     },
@@ -101,12 +151,20 @@
       "id": 5,
       "title": "Panel 2: Rolling Prequential Accuracy (M1 - M6) with ADWIN Drift Markers",
       "type": "timeseries",
-      "gridPos": { "h": 10, "w": 14, "x": 0, "y": 6 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 10,
+        "w": 14,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"prequential_accuracy\" and r._field == \"rolling_accuracy\")"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"prequential_accuracy\" and r._field == \"rolling_accuracy\")"
         }
       ],
       "fieldConfig": {
@@ -121,17 +179,41 @@
       "id": 6,
       "title": "Panel 3: Fine-Grained Latency Breakdown (ms) - Prep vs Encode vs Sim vs Update",
       "type": "barchart",
-      "gridPos": { "h": 10, "w": 10, "x": 14, "y": 6 },
-      "datasource": { "type": "influxdb", "uid": "influxdb_quantum_uid" },
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 6
+      },
+      "datasource": {
+        "type": "influxdb",
+        "uid": "influxdb_quantum_uid"
+      },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: -15m)\n  |> filter(fn: (r) => r._measurement == \"latency_telemetry\")\n  |> filter(fn: (r) => r._field == \"t_prep_ms\" or r._field == \"t_encode_ms\" or r._field == \"t_sim_ms\" or r._field == \"t_update_ms\")\n  |> mean()"
+          "query": "from(bucket: \"streaming_quantum\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"latency_telemetry\")\n  |> filter(fn: (r) => r._field == \"t_prep_ms\" or r._field == \"t_encode_ms\" or r._field == \"t_sim_ms\" or r._field == \"t_update_ms\")\n  |> group(columns: [\"model\", \"_field\"])\n  |> mean()\n  |> group()\n  |> pivot(rowKey: [\"model\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> keep(columns: [\"model\", \"t_prep_ms\", \"t_encode_ms\", \"t_sim_ms\", \"t_update_ms\"])"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "ms"
+          "unit": "ms",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "xField": "model",
+        "barWidth": 0.7,
+        "groupWidth": 0.7,
+        "showValue": "never",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
         }
       }
     }
