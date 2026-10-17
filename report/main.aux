@@ -1,0 +1,74 @@
+\relax 
+\citation{domingos2000}
+\citation{bifet2007adwin}
+\citation{schuld2019}
+\citation{herbst2024}
+\citation{tscharke2023}
+\citation{domingos2000}
+\citation{herbst2024}
+\citation{tscharke2023}
+\citation{domingos2000}
+\citation{bifet2007adwin}
+\citation{bifet2009}
+\citation{herbst2024}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
+\newlabel{sec:intro}{{I}{1}{}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work and Gap}{1}{}\protected@file@percent }
+\newlabel{sec:related}{{II}{1}{}{section.2}{}}
+\citation{tscharke2023}
+\citation{schuld2019}
+\citation{gama2014}
+\@writefile{toc}{\contentsline {section}{\numberline {III}System Architecture}{2}{}\protected@file@percent }
+\newlabel{sec:arch}{{III}{2}{}{section.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces $4 \times 2$ comparative model matrix}}{2}{}\protected@file@percent }
+\newlabel{tab:matrix}{{I}{2}{}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Proposed Enhancement: Drift-Adaptive Quantum Learning}{2}{}\protected@file@percent }
+\newlabel{sec:enh}{{IV}{2}{}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Model matrix}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Adaptation mechanism}{2}{}\protected@file@percent }
+\citation{spall1992}
+\citation{harries1999}
+\citation{river}
+\citation{spall1992}
+\citation{pennylane}
+\citation{sklearn}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Qompare architecture. A paced Kafka producer replays ELEC2 into a topic; the worker normalises features into $[0,\pi ]$; eight models are scored prequentially; telemetry streams into InfluxDB and Grafana. Dashed arrows: models are queried and updated by the evaluation engine, which enforces test-then-train ordering.}}{3}{}\protected@file@percent }
+\newlabel{fig:arch}{{1}{3}{}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Per-event protocol}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Optimizer and kernel details}{3}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}Implementation}{3}{}\protected@file@percent }
+\newlabel{sec:impl}{{V}{3}{}{section.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Key configuration (complete list in the repository's \texttt  {.env.example})}}{4}{}\protected@file@percent }
+\newlabel{tab:config}{{II}{4}{}{table.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Experimental Setup and Results}{4}{}\protected@file@percent }
+\newlabel{sec:results}{{VI}{4}{}{section.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Full ELEC2 stream: post-warmup accuracy, final rolling F1, mean simulation latency, update count and mean $N_{\text  {recovery}}$}}{4}{}\protected@file@percent }
+\newlabel{tab:results}{{III}{4}{}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Rolling prequential accuracy (window 100) over the full ELEC2 stream; crimson dashed lines mark ADWIN drift alerts (189). Static models sag after drifts; adaptive models recover.}}{4}{}\protected@file@percent }
+\newlabel{fig:acc}{{2}{4}{}{figure.2}{}}
+\citation{schuld2019}
+\citation{herbst2024}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Mean per-event latency decomposition (log scale): quantum encode and statevector simulation dominate M3--M6; classical models stay sub-millisecond.}}{5}{}\protected@file@percent }
+\newlabel{fig:lat}{{3}{5}{}{figure.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Sample-efficiency sweep: post-warmup accuracy vs.\ support budget $K$ (first 3{,}000 events)}}{5}{}\protected@file@percent }
+\newlabel{tab:se}{{IV}{5}{}{table.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Discussion and Inferences}{5}{}\protected@file@percent }
+\newlabel{sec:disc}{{VII}{5}{}{section.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Sample-efficiency sweep (Hypothesis 4): post-warmup accuracy vs.\ support budget $K$ for the quantum kernel (M6) and the classical RBF control (M8) over the first 3{,}000 events. The early quantum edge at small $K$ disappears as data accumulates.}}{5}{}\protected@file@percent }
+\newlabel{fig:se}{{4}{5}{}{figure.4}{}}
+\bibcite{domingos2000}{1}
+\bibcite{bifet2007adwin}{2}
+\bibcite{bifet2009}{3}
+\bibcite{herbst2024}{4}
+\bibcite{tscharke2023}{5}
+\bibcite{schuld2019}{6}
+\bibcite{harries1999}{7}
+\bibcite{spall1992}{8}
+\bibcite{river}{9}
+\bibcite{pennylane}{10}
+\bibcite{sklearn}{11}
+\bibcite{gama2014}{12}
+\@writefile{toc}{\contentsline {section}{\numberline {VIII}Conclusion and Future Work}{6}{}\protected@file@percent }
+\newlabel{sec:concl}{{VIII}{6}{}{section.8}{}}
+\@writefile{toc}{\contentsline {section}{References}{6}{}\protected@file@percent }
+\gdef \@abspage@last{6}
