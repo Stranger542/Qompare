@@ -9,3 +9,10 @@ __pycache__/
 
 # Intermediate experiment outputs (final report figures are committed deliberately)
 experiments/plots/*.tmp
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
